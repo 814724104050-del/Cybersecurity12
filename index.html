@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield Log Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#080d18;
+ color:#e8eef8;
+ font-family:Arial,sans-serif;
+}
+header{
+ background:#101827;
+ padding:20px;
+ border-bottom:1px solid #223047;
+ display:flex;
+ justify-content:space-between;
+}
+header h2{margin:0;color:#22d3ee}
+main{padding:25px;max-width:1300px;margin:auto}
+.subtitle{color:#8fa1bb}
+.cards{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:15px;
+ margin:25px 0;
+}
+.card{
+ background:#101827;
+ padding:20px;
+ border:1px solid #223047;
+ border-radius:12px;
+}
+.card h3{color:#8fa1bb;font-size:14px}
+.number{font-size:28px;font-weight:bold;color:#22d3ee}
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:20px;
+}
+button{
+ background:#22d3ee;
+ color:#06111b;
+ border:none;
+ padding:12px 18px;
+ border-radius:7px;
+ cursor:pointer;
+ font-weight:bold;
+}
+input,select{
+ background:#0b1421;
+ color:white;
+ border:1px solid #26364c;
+ padding:10px;
+ border-radius:7px;
+ margin:5px;
+}
+table{
+ width:100%;
+ border-collapse:collapse;
+ margin-top:15px;
+}
+th,td{
+ padding:12px;
+ text-align:left;
+ border-bottom:1px solid #223047;
+}
+th{color:#22d3ee}
+.high{color:#fb7185}
+.medium{color:#facc15}
+.low{color:#34d399}
+.status{color:#34d399}
+.chart{height:250px}
+@media(max-width:800px){
+ .cards{grid-template-columns:repeat(2,1fr)}
+ .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <h2>🛡 CYBERSHIELD</h2>
+ <span class="status">● SYSTEM ONLINE</span>
+</header>
+
+<main>
+
+<h1>Cybersecurity Log Analytics Dashboard</h1>
+<p class="subtitle">
+Security monitoring using Hadoop & MapReduce
+</p>
+
+<div class="cards">
+
+<div class="card">
+<h3>TOTAL LOG EVENTS</h3>
+<div class="number" id="total">1284</div>
+</div>
+
+<div class="card">
+<h3>THREATS DETECTED</h3>
+<div class="number high" id="threats">86</div>
+</div>
+
+<div class="card">
+<h3>FAILED LOGINS</h3>
+<div class="number medium" id="failed">243</div>
+</div>
+
+<div class="card">
+<h3>MAPREDUCE STATUS</h3>
+<div class="number low" id="status">Ready</div>
+</div>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h3>Security Events Timeline</h3>
+<div class="chart">
+<canvas id="eventsChart"></canvas>
+</div>
+</div>
+
+<div class="card">
+<h3>Threat Distribution</h3>
+<div class="chart">
+<canvas id="threatChart"></canvas>
+</div>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:20px">
+<h3>Hadoop MapReduce Pipeline</h3>
+
+<p>
+📥 Input Logs → 🧩 Mapper → ⇅ Shuffle & Sort → ⚙ Reducer
+</p>
+
+<button onclick="runMapReduce()">Run MapReduce</button>
+
+<p id="result" class="status">
+Waiting for processing...
+</p>
+</div>
+
+<div class="card" style="margin-top:20px">
+
+<h3>Security Log Explorer</h3>
+
+<input type="text" id="search"
+placeholder="Search IP or event..."
+onkeyup="searchLogs()">
+
+<select id="filter" onchange="searchLogs()">
+<option value="">All Severity</option>
+<option value="Critical">Critical</option>
+<option value="High">High</option>
+<option value="Medium">Medium</option>
+<option value="Low">Low</option>
+</select>
+
+<table>
+<thead>
+<tr>
+<th>Source IP</th>
+<th>Event</th>
+<th>Severity</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="logs">
+<tr>
+<td>192.168.1.105</td>
+<td>Failed Login</td>
+<td class="high">Critical</td>
+<td>Blocked</td>
+</tr>
+
+<tr>
+<td>45.142.212.61</td>
+<td>Port Scan</td>
+<td class="high">High</td>
+<td>Flagged</td>
+</tr>
+
+<tr>
+<td>10.0.0.24</td>
+<td>Successful Login</td>
+<td class="low">Low</td>
+<td>Allowed</td>
+</tr>
+
+<tr>
+<td>103.82.21.9</td>
+<td>Malware Alert</td>
+<td class="high">Critical</td>
+<td>Quarantined</td>
+</tr>
+
+<tr>
+<td>172.16.0.8</td>
+<td>Failed Login</td>
+<td class="medium">Medium</td>
+<td>Flagged</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+</main>
+
+<script>
+
+// Security Events Chart
+new Chart(document.getElementById("eventsChart"),{
+ type:"line",
+ data:{
+ labels:["06AM","07AM","08AM","09AM","10AM","11AM"],
+ datasets:[{
+ label:"Security Events",
+ data:[100,180,145,240,195,310],
+ borderColor:"#22d3ee",
+ backgroundColor:"#22d3ee22",
+ fill:true,
+ tension:0.4
+ }]
+ },
+ options:{responsive:true,maintainAspectRatio:false}
+});
+
+// Threat Distribution Chart
+new Chart(document.getElementById("threatChart"),{
+ type:"doughnut",
+ data:{
+ labels:["Critical","High","Medium","Low"],
+ datasets:[{
+ data:[18,31,24,13],
+ backgroundColor:["#fb7185","#fb923c","#facc15","#34d399"]
+ }]
+ },
+ options:{responsive:true,maintainAspectRatio:false}
+});
+
+// MapReduce Demo
+function runMapReduce(){
+ document.getElementById("status").innerText="Running";
+ document.getElementById("result").innerText=
+ "Processing logs using Mapper and Reducer...";
+
+ setTimeout(()=>{
+ document.getElementById("status").innerText="Completed";
+ document.getElementById("result").innerText=
+ "MapReduce completed successfully! Threats aggregated.";
+ },2000);
+}
+
+// Search Logs
+function searchLogs(){
+ let input=document.getElementById("search").value.toLowerCase();
+ let filter=document.getElementById("filter").value;
+ let rows=document.querySelectorAll("#logs tr");
+
+ rows.forEach(row=>{
+ let text=row.innerText.toLowerCase();
+ let severity=row.cells[2].innerText;
+ row.style.display=
+ text.includes(input)&&(!filter||severity===filter)
+ ?"":"none";
+ });
+}
+
+</script>
+
+</body>
+</html>
